@@ -6,6 +6,10 @@ from flask import Flask, request, jsonify
 import xgboost as xgb
 import numpy as np
 import joblib
+from dotenv import load_dotenv
+
+# Memuat variabel lingkungan dari file .env
+load_dotenv()
 
 # Inisialisasi aplikasi Flask
 app = Flask(__name__)
@@ -14,14 +18,26 @@ app = Flask(__name__)
 model = joblib.load('xgboost_model3.pkl')
 
 # Mengonfigurasi Firebase menggunakan variabel lingkungan
-firebase_credentials = json.loads(os.environ.get('FIREBASE_CREDENTIALS'))
+firebase_credentials = {
+    "type": os.getenv('TYPE'),
+    "project_id": os.getenv('PROJECT_ID'),
+    "private_key_id": os.getenv('PRIVATE_KEY_ID'),
+    "private_key": os.getenv('PRIVATE_KEY').replace('\\n', '\n'),
+    "client_email": os.getenv('CLIENT_EMAIL'),
+    "client_id": os.getenv('CLIENT_ID'),
+    "auth_uri": os.getenv('AUTH_URI'),
+    "token_uri": os.getenv('TOKEN_URI'),
+    "auth_provider_x509_cert_url": os.getenv('AUTH_PROVIDER_X509_CERT_URL'),
+    "client_x509_cert_url": os.getenv('CLIENT_X509_CERT_URL'),
+    "universe_domain": os.getenv('UNIVERSE_DOMAIN')
+}
 cred = credentials.Certificate(firebase_credentials)
 firebase_admin.initialize_app(cred, {
     'databaseURL': 'https://himedislogin-default-rtdb.firebaseio.com/'
 })
 
 # Mengakses Realtime Database
-ref = db.reference('/predictions')  # Sesuaikan dengan path yang sesuai di database
+ref = db.reference('/predictions')
 
 @app.route('/predict', methods=['POST'])
 def predict():
@@ -57,4 +73,4 @@ def predict():
 
 # Menjalankan aplikasi Flask di Vercel
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=int(os.environ.get('PORT', 5000)))
+    app.run(debug=True, host='0.0.0.0', port=int(os.getenv('PORT', 5000)))
