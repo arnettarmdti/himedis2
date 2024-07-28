@@ -3,16 +3,13 @@
     "builds": [
       {
         "src": "prediksi.py",
-        "use": "@vercel/python",
-        "config": {
-          "maxLambdaSize": "50mb"
-        }
+        "use": "@vercel/python"
       }
     ],
     "routes": [
       {
-        "src": "/(.*)",
-        "dest": "/prediksi.py"
+        "src": "/predict",
+        "dest": "prediksi.py"
       }
     ]
   }
